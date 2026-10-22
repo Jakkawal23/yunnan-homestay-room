@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f4037">
+<title>เช็คห้องว่าง · ยูนนานโฮมสเตย์</title>
+<meta name="description" content="เช็คห้องว่างยูนนานโฮมสเตย์ ดอยอ่างขาง เลือกวันเข้าพัก ดูว่าห้องไหนว่าง แล้วจองผ่าน LINE">
+<meta property="og:title" content="เช็คห้องว่าง · ยูนนานโฮมสเตย์">
+<meta property="og:image" content="images/hero-small.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/common.css">
+<style>
+/* หัวหน้า */
+.head{position:relative;background:var(--pine-d) center/cover;color:#fff;overflow:hidden}
+.head:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,40,34,.55),rgba(20,40,34,.85))}
+.head:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-1px;height:34px;background:var(--cream);clip-path:polygon(0 100%,0 60%,12% 20%,22% 55%,35% 5%,48% 50%,60% 15%,72% 60%,84% 25%,100% 70%,100% 100%)}
+.head .wrap{position:relative;padding:26px 16px 50px}
+.head h1{font-size:clamp(26px,5vw,36px)}
+.head p{margin:6px 0 0;opacity:.92;font-size:15px}
+
+main.wrap,.head .wrap,.sbar .wrap{max-width:720px}
+main.wrap{padding-bottom:120px}
+.demo{background:#fff6d6;border:1px solid #f0dc9a;color:#6b5300;border-radius:12px;padding:10px 14px;font-size:14px;margin:4px 0 12px}
+.err{background:#fdecea;border:1px solid #f3c2bc;color:#8a2116;border-radius:14px;padding:16px;margin:8px 0 12px}
+.err p{margin:0 0 10px}
+
+/* ตัวกรองห้อง */
+.filters{display:flex;gap:8px;overflow-x:auto;padding:4px 0 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:0 0 auto;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-size:14px;white-space:nowrap}
+.filters button.on{background:var(--pine);border-color:var(--pine);color:#fff}
+
+/* ปฏิทิน */
+.cal{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:12px}
+.cal-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-h b{font-family:'Prompt',sans-serif;font-size:18px}
+.cal-h button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:20px;line-height:1}
+.cal-h button:disabled{opacity:.3;cursor:default}
+.dow,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dow span{text-align:center;font-size:12.5px;color:var(--muted);padding:2px 0}
+.days button{border:0;border-radius:10px;padding:6px 0 5px;min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:#f3f6f4;font-variant-numeric:tabular-nums}
+.days button b{font-size:15px;font-weight:600;line-height:1.2}
+.days button small{font-size:10.5px;line-height:1.2;white-space:nowrap}
+.days .blank{visibility:hidden}
+.days .ok{background:#e3f1e7;color:#2f6b45}
+.days .low{background:#fdf0c8;color:#7a5a00}
+.days .full{background:#f6e4e1;color:#9b1c12}
+.days .full b{text-decoration:line-through;text-decoration-thickness:1px}
+.days .past{background:transparent;color:#c4c9c6;cursor:default}
+.days .today b{text-decoration:underline;text-underline-offset:3px}
+.days .inr{background:#f6d9c9;color:#7a3413}
+.days .sel{background:var(--clay);color:#fff}
+.days .sel small{opacity:.9}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin:10px 2px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin-right:5px}
+
+/* ผลลัพธ์ */
+.res{margin-top:18px}
+.res h2{font-size:20px;margin-bottom:4px}
+.res .sub{color:var(--muted);font-size:14px;margin:0 0 12px}
+.hint{background:var(--paper);border:1px dashed #cfd8d3;border-radius:16px;padding:18px;text-align:center;color:var(--muted)}
+.hint b{display:block;color:var(--ink);font-family:'Prompt',sans-serif;font-size:17px;margin-bottom:2px}
+.rlist{display:grid;gap:12px}
+.rc{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:grid;grid-template-columns:132px 1fr}
+.rc .ph{position:relative;background:var(--pine-l);min-height:100%}
+.rc .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rc .bd{padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rc h3{font-size:17px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.badge{font-family:'IBM Plex Sans Thai',sans-serif;font-size:12.5px;font-weight:600;border-radius:99px;padding:1px 10px}
+.badge.yes{background:#e3f1e7;color:#2f6b45}
+.badge.no{background:#f6e4e1;color:#9b1c12}
+.rc .why{font-size:13px;color:#9b1c12;margin:0}
+.rc .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.rc .acts .btn{flex:1;padding:9px 12px;font-size:14px}
+.rc.off{opacity:.78}
+.rc.off .ph img{filter:grayscale(.7)}
+.more{margin-top:12px;text-align:center}
+.foot-note{margin-top:18px;font-size:13px;color:var(--muted);text-align:center;line-height:1.7}
+
+/* แถบล่าง */
+.sbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--paper);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.sbar .wrap{display:flex;align-items:center;gap:10px;padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+.sbar span{flex:1;font-size:13.5px;color:var(--muted);line-height:1.35;min-width:0}
+.sbar span b{display:block;color:var(--ink);font-family:'Prompt',sans-serif;font-size:15px}
+.loading{padding:40px 0;text-align:center;color:var(--muted)}
+.spin{width:28px;height:28px;border:3px solid var(--pine-l);border-top-color:var(--pine);border-radius:50%;margin:0 auto 10px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media(max-width:420px){
+  .rc{grid-template-columns:104px 1fr}
+  .days button{min-height:48px}
+  .days button small{font-size:9.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- =====================================================================
+     หน้าเช็คห้องว่าง  ·  ดึงข้อมูลห้องว่างจาก Google Sheet ผ่าน Apps Script
+     ตั้งค่าลิงก์ต่างๆ ที่ assets/config.js (urls.availabilityApi)
+     อธิบายทั้งหมดใน docs/website.md
+     ===================================================================== -->
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" id="brand" href="#">ยูนนานโฮมสเตย์</a>
+  <a class="btn sm ghost" id="navRooms" href="#">ดูห้องพัก</a>
+</div></nav>
+
+<header class="head" id="head">
+  <div class="wrap">
+    <h1>เช็คห้องว่าง</h1>
+    <p>แตะวันเข้าพัก แล้วแตะวันออก ระบบบอกทันทีว่าห้องไหนว่าง</p>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="notice"></div>
+  <div class="filters" id="filters" role="tablist" aria-label="เลือกห้อง"></div>
+  <section class="cal" id="cal" aria-label="ปฏิทินห้องว่าง">
+    <div class="loading"><div class="spin"></div>กำลังโหลดข้อมูลห้องว่าง…</div>
+  </section>
+  <div class="legend" id="legend"></div>
+  <section class="res" id="results"></section>
+  <p class="foot-note" id="footNote"></p>
+</main>
+
+<div class="sbar"><div class="wrap"><span id="sbarTxt"></span><button class="btn ghost sm" id="clearBtn" hidden>ล้าง</button><a class="btn line sm" data-line="general" href="#" id="sbarLine">ทัก LINE</a></div></div>
+
+<script src="assets/config.js"></script>
+<script src="assets/common.js"></script>
+<script>
+// ---------------- สถานะของหน้า ----------------
+const API=(CONFIG.urls.availabilityApi||'').trim();
+const MAX_DAYS=365;           // ให้เลือกวันล่วงหน้าได้ไม่เกินนี้
+const S={data:null,demo:false,room:'',ci:'',co:'',view:null,busy:{},closed:new Set(),known:new Set()};
+const Q=new URLSearchParams(location.search);
+
+// ---------------- โหลดข้อมูล ----------------
+function fetchJson(url){
+  const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),15000);
+  return fetch(url,{signal:ctl.signal}).then(r=>{clearTimeout(t);if(!r.ok)throw new Error('HTTP '+r.status);return r.json()});
+}
+// สำรอง: JSONP เผื่อเบราว์เซอร์บางตัวเรียก fetch ข้ามโดเมนไม่ได้
+function jsonp(url){
+  return new Promise((ok,bad)=>{
+    const cb='__avail'+Date.now();const s=document.createElement('script');
+    const t=setTimeout(()=>{cleanup();bad(new Error('timeout'))},15000);
+    function cleanup(){clearTimeout(t);delete window[cb];s.remove()}
+    window[cb]=d=>{cleanup();ok(d)};
+    s.onerror=()=>{cleanup();bad(new Error('jsonp'))};
+    s.src=url+(url.indexOf('?')<0?'?':'&')+'callback='+cb;document.head.appendChild(s);
+  });
+}
+// ข้อมูลตัวอย่าง (ใช้เมื่อยังไม่ได้ใส่ลิงก์ API)
+function demoData(){
+  const t=todayIso(),d=n=>addDays(t,n);
+  return {ok:true,today:t,updatedAt:'ข้อมูลตัวอย่าง',rooms:CONFIG.rooms.map(r=>({id:r.id,name:r.name})),closed:[],
+    busy:{R1:[[d(1),d(3)],[d(9),d(11)]],R2:[[d(2),d(4)],[d(9),d(11)]],R3:[[d(0),d(2)],[d(9),d(12)]],R4:[[d(4),d(6)],[d(9),d(11)]],R5:[[d(9),d(11)],[d(16),d(18)]]}};
+}
+async function load(){
+  if(!API){S.demo=true;return demoData()}
+  try{return await fetchJson(API+(API.indexOf('?')<0?'?':'&')+'t='+Date.now())}
+  catch(e){return await jsonp(API)}
+}
+
+// แปลงช่วงวันที่ไม่ว่าง เป็นชุด "คืนที่ไม่ว่าง" ของแต่ละห้อง
+function prepare(d){
+  S.data=d;S.busy={};S.closed=new Set(d.closed||[]);S.known=new Set((d.rooms||[]).map(r=>r.id));
+  const limit=addDays(todayIso(),MAX_DAYS+31);
+  Object.entries(d.busy||{}).forEach(([id,ranges])=>{
+    const set=S.busy[id]=new Set();
+    ranges.forEach(([a,b])=>{for(let x=a<todayIso()?todayIso():a;x<b&&x<limit;x=addDays(x,1))set.add(x)});
+  });
+}
+// ห้องนี้ไม่ว่างคืนนั้นไหม
+function roomBusy(id,iso){return S.closed.has(id)||(S.known.size&&!S.known.has(id))||(S.busy[id]&&S.busy[id].has(iso))}
+const roomsInView=()=>S.room?CONFIG.rooms.filter(r=>r.id===S.room):CONFIG.rooms;
+function freeCount(iso){return roomsInView().filter(r=>!roomBusy(r.id,iso)).length}
+function nightsOf(ci,co){const out=[];for(let x=ci;x<co;x=addDays(x,1))out.push(x);return out}
+
+// ---------------- ตัวกรองห้อง ----------------
+function renderFilters(){
+  $('filters').innerHTML=[`<button data-r="" class="${S.room?'':'on'}">ทุกห้อง</button>`]
+    .concat(CONFIG.rooms.map(r=>`<button data-r="${esc(r.id)}" class="${S.room===r.id?'on':''}">${esc(r.name)}</button>`)).join('');
+  $('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.room=b.dataset.r;sync();renderAll()});
+  const on=$('filters').querySelector('.on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});
+}
+
+// ---------------- ปฏิทิน ----------------
+function renderCal(){
+  const t=todayIso(),max=addDays(t,MAX_DAYS);
+  const v=S.view,y=v.getFullYear(),m=v.getMonth();
+  const first=new Date(y,m,1),days=new Date(y,m+1,0).getDate();
+  const minView=new Date(dateOf(t).getFullYear(),dateOf(t).getMonth(),1);
+  const maxView=new Date(dateOf(max).getFullYear(),dateOf(max).getMonth(),1);
+  const single=!!S.room,total=roomsInView().length;
+  let cells='';
+  for(let i=0;i<first.getDay();i++)cells+='<button class="blank" tabindex="-1" aria-hidden="true"></button>';
+  for(let d=1;d<=days;d++){
+    const iso=isoOf(new Date(y,m,d));let cls='',tag='',dis=false;
+    if(iso<t||iso>max){cls='past';dis=true}
+    else{
+      const f=freeCount(iso);
+      if(f===0){cls='full';tag='เต็ม'}
+      else if(single){cls='ok';tag='ว่าง'}
+      else{cls=f===1&&total>1?'low':'ok';tag='ว่าง '+f}
+    }
+    if(S.ci&&(iso===S.ci||iso===S.co))cls+=' sel';
+    else if(S.ci&&S.co&&iso>S.ci&&iso<S.co)cls+=' inr';
+    if(iso===t)cls+=' today';
+    const label=fmtDate(iso)+(tag?' '+tag:'');
+    cells+=`<button class="${cls}" data-d="${iso}" ${dis?'disabled':''} aria-label="${label}"><b>${d}</b><small>${iso===S.ci?'เข้า':iso===S.co?'ออก':tag||'&nbsp;'}</small></button>`;
+  }
+  $('cal').innerHTML=`<div class="cal-h"><button id="pm" aria-label="เดือนก่อน" ${v<=minView?'disabled':''}>‹</button>
+    <b>${MONTHS_TH[m]} ${y}</b><button id="nm" aria-label="เดือนถัดไป" ${v>=maxView?'disabled':''}>›</button></div>
+    <div class="dow">${['อา','จ','อ','พ','พฤ','ศ','ส'].map(x=>`<span>${x}</span>`).join('')}</div>
+    <div class="days">${cells}</div>`;
+  $('pm').onclick=()=>{S.view=new Date(y,m-1,1);renderCal()};
+  $('nm').onclick=()=>{S.view=new Date(y,m+1,1);renderCal()};
+  $('cal').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>pick(b.dataset.d));
+  // ปัดซ้าย/ขวาเพื่อเปลี่ยนเดือน
+  let x0=null;const g=$('cal');
+  g.ontouchstart=e=>{x0=e.touches[0].clientX};
+  g.ontouchend=e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;x0=null;
+    if(Math.abs(dx)>60){const b=$(dx<0?'nm':'pm');if(b&&!b.disabled)b.click()}};
+}
+function pick(iso){
+  if(!S.ci||S.co||iso<=S.ci){S.ci=iso;S.co=''}
+  else S.co=iso;
+  sync();renderCal();renderResults();renderBar();
+  if(S.co)setTimeout(()=>$('results').scrollIntoView({behavior:'smooth',block:'start'}),120);
+}
+
+// ---------------- ผลลัพธ์ ----------------
+function roomCard(r,ok,why){
+  const view=pageUrl('rooms',{from:'check',room:S.room,in:S.ci,out:S.co},r.id);
+  return `<article class="rc ${ok?'':'off'}">
+    <a class="ph" href="${esc(view)}" aria-label="ดูรูป ${esc(r.name)}">${img(r.small[0]||'',r.name,CONFIG.rooms.indexOf(r))}</a>
+    <div class="bd">
+      <h3>${esc(r.name)} <span class="badge ${ok?'yes':'no'}">${ok?'ว่าง':'ไม่ว่าง'}</span></h3>
+      <div class="chips"><span class="chip">${esc(r.bed)}</span><span class="chip">${r.capacity} ท่าน</span>${r.extra?`<span class="chip">+ เสริม ${r.extra}</span>`:''}</div>
+      ${CONFIG.showPrice?`<div class="price"><small>เริ่มต้น</small><b>${baht(r.from)}</b> <span>/ คืน</span></div>`:''}
+      ${why?`<p class="why">${esc(why)}</p>`:''}
+      <div class="acts"><a class="btn ghost" href="${esc(view)}"><span class="ic">${icon('image')}</span>ดูห้อง</a>${ok?`<a class="btn line" data-line="booking" data-room="${esc(r.id)}" data-in="${S.ci}" data-out="${S.co}" href="#"><span class="ic">${icon('chat')}</span>สนใจจอง</a>`:''}</div>
+    </div></article>`;
+}
+function renderResults(){
+  const el=$('results');
+  if(!S.ci){el.innerHTML=`<div class="hint"><b>แตะวันเช็คอินในปฏิทิน</b>วันที่จะเข้าพัก</div>`;return}
+  if(!S.co){el.innerHTML=`<div class="hint"><b>แตะวันเช็คเอาท์</b>วันที่ออก (เข้า ${fmtDate(S.ci)})</div>`;return}
+  const nights=nightsOf(S.ci,S.co);
+  const list=roomsInView().map(r=>{
+    if(S.closed.has(r.id)||(S.known.size&&!S.known.has(r.id)))return {r,ok:false,why:'งดให้บริการช่วงนี้'};
+    const bad=nights.filter(n=>roomBusy(r.id,n));
+    return {r,ok:!bad.length,why:bad.length?'เต็มคืน '+bad.slice(0,3).map(fmtDate).join(', ')+(bad.length>3?` และอีก ${bad.length-3} คืน`:''):''};
+  }).sort((a,b)=>b.ok-a.ok);
+  const nOk=list.filter(x=>x.ok).length;
+  el.innerHTML=`<h2>${S.room?(nOk?'ห้องนี้ว่าง':'ห้องนี้ไม่ว่าง'):(nOk?`ว่าง ${nOk} ห้อง`:'ห้องเต็มทุกห้อง')}</h2>
+    <p class="sub">${fmtDate(S.ci)} – ${fmtDate(S.co)} · ${nights.length} คืน</p>
+    <div class="rlist">${list.map(x=>roomCard(x.r,x.ok,x.why)).join('')}</div>
+    ${S.room?`<div class="more"><button class="btn ghost" id="allRooms">ดูห้องอื่นที่ว่างช่วงนี้</button></div>`:''}
+    ${!nOk?`<div class="more"><a class="btn line" data-line="general" href="#">ทัก LINE ถามแอดมิน</a></div>`:''}`;
+  if($('allRooms'))$('allRooms').onclick=()=>{S.room='';sync();renderAll()};
+  bindLine(el);
+}
+function renderBar(){
+  $('clearBtn').hidden=!S.ci;
+  $('sbarTxt').innerHTML=S.ci&&S.co?`<b>${fmtDate(S.ci)} – ${fmtDate(S.co)}</b>${nightsBetween(S.ci,S.co)} คืน${S.room?' · '+esc(roomById(S.room).name):''}`
+    :S.ci?`<b>เข้า ${fmtDate(S.ci)}</b>แตะวันเช็คเอาท์ต่อ`:`<b>เลือกวันเข้าพัก</b>แตะวันในปฏิทิน`;
+}
+function renderAll(){renderFilters();renderCal();renderResults();renderBar()}
+
+// เก็บสถานะไว้ในลิงก์ (กดย้อนกลับหรือแชร์ลิงก์แล้วได้หน้าเดิม)
+function sync(){
+  const p=new URLSearchParams();if(S.room)p.set('room',S.room);if(S.ci)p.set('in',S.ci);if(S.co)p.set('out',S.co);
+  const q=p.toString();history.replaceState(null,'',location.pathname+(q?'?'+q:''));
+}
+
+// ---------------- เริ่มทำงาน ----------------
+function init(){
+  document.title='เช็คห้องว่าง · '+CONFIG.name;
+  $('brand').textContent=CONFIG.name;$('brand').href=pageUrl('rooms');
+  $('navRooms').href=pageUrl('rooms',null,'rooms');
+  $('head').style.backgroundImage=`url('${CONFIG.heroImageSmall||CONFIG.heroImage}')`;
+  $('legend').innerHTML=`<span><i style="background:#e3f1e7"></i>ว่าง</span><span><i style="background:#fdf0c8"></i>เหลือ 1 ห้อง</span><span><i style="background:#f6e4e1"></i>เต็ม</span><span><i style="background:var(--clay)"></i>วันที่เลือก</span>`;
+  const t=todayIso(),re=/^\d{4}-\d{2}-\d{2}$/;
+  if(roomById(Q.get('room')))S.room=Q.get('room');
+  const qi=Q.get('in')||'',qo=Q.get('out')||'';
+  if(re.test(qi)&&qi>=t){S.ci=qi;if(re.test(qo)&&qo>qi)S.co=qo}
+  const v=dateOf(S.ci||t);S.view=new Date(v.getFullYear(),v.getMonth(),1);
+  renderFilters();renderBar();bindLine();
+  $('clearBtn').onclick=()=>{S.ci=S.co='';sync();renderAll()};
+  load().then(d=>{
+    if(!d||!d.ok)throw new Error((d&&d.error)||'no data');
+    prepare(d);
+    if(S.demo)$('notice').innerHTML=`<div class="demo">โหมดตัวอย่าง: ยังไม่ได้เชื่อม Google Sheet ข้อมูลห้องว่างในหน้านี้เป็นข้อมูลสมมติ</div>`;
+    $('footNote').innerHTML=`ข้อมูลอัปเดตล่าสุด ${esc(d.updatedAt||'')}<br>สถานะห้องอาจเปลี่ยนได้ แอดมินจะยืนยันห้องอีกครั้งในแชท`;
+    renderAll();
+  }).catch(()=>{
+    $('cal').innerHTML=`<div class="err"><p><b>โหลดข้อมูลห้องว่างไม่สำเร็จ</b><br>ลองใหม่อีกครั้ง หรือทักแอดมินทาง LINE เพื่อสอบถามห้องว่างได้เลย</p>
+      <button class="btn ghost sm" onclick="location.reload()">ลองใหม่</button> <a class="btn line sm" data-line="general" href="#">ทัก LINE</a></div>`;
+    bindLine($('cal'));$('results').innerHTML='';$('legend').innerHTML='';
+  });
+}
+init();
+</script>
+</body>
+</html>

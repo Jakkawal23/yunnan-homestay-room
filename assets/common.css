@@ -1,0 +1,48 @@
+/* สี ฟอนต์ ปุ่ม และแถบเมนูที่ใช้ร่วมกันทั้ง 2 หน้า  ·  อธิบายใน docs/website.md */
+:root{--pine:#2f5d50;--pine-d:#1f4037;--pine-l:#e3ece7;--cream:#f8f4ec;--paper:#fff;--ink:#22302a;--muted:#6b7a73;--line:#e4dccd;--clay:#c2643a;--lineg:#06c755;--fb:#0866ff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;font-size:16px;line-height:1.6}
+h1,h2,h3{font-family:'Prompt','IBM Plex Sans Thai',sans-serif;margin:0;font-weight:600;line-height:1.3}
+a{color:inherit}
+button{font:inherit;cursor:pointer;color:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+.ic svg{width:20px;height:20px;display:block}
+
+/* แถบเมนู */
+.nav{position:sticky;top:0;z-index:20;background:rgba(31,64,55,.96);backdrop-filter:blur(6px);color:#fff}
+.nav .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.nav .brand{font-family:'Prompt',sans-serif;font-weight:600;font-size:17px;text-decoration:none;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav .links{display:flex;gap:18px;font-size:14.5px}
+.nav .links a{text-decoration:none;opacity:.85}
+.nav .links a:hover{opacity:1}
+@media(max-width:720px){.nav .links{display:none}}
+
+/* ปุ่ม */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 20px;font-weight:600;text-decoration:none;background:var(--clay);color:#fff;white-space:nowrap}
+.btn:hover{filter:brightness(1.06)}
+.btn.sm{padding:8px 14px;font-size:14px;border-radius:10px}
+.btn.pine{background:var(--pine)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.line{background:var(--lineg)}
+.btn.fb{background:var(--fb)}
+.btn .ic svg{width:18px;height:18px}
+
+/* ป้าย */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;background:var(--cream);border:1px solid var(--line);border-radius:99px;padding:2px 10px;color:#3d4a44}
+.price small{display:block;font-size:12px;color:var(--muted);line-height:1.2}
+.price b{font-family:'Prompt',sans-serif;font-size:21px}
+.price span{font-size:13px;color:var(--muted)}
+
+/* แจ้งเตือนสั้นๆ */
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:rgba(20,32,27,.92);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+footer{text-align:center;color:var(--muted);font-size:13.5px;padding:28px 16px 90px}
+@media(max-width:720px){
+  body{font-size:15.5px}
+  footer{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+}
